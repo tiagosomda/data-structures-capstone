@@ -5,9 +5,6 @@ using UnityEngine;
 public class PlayerAttack : MonoBehaviour
 {
     [SerializeField]
-    GameObject bulletPrefab;
-
-    [SerializeField]
     Transform bulletOrigin;
 
     [SerializeField]
@@ -15,21 +12,25 @@ public class PlayerAttack : MonoBehaviour
 
     float cooldown;
 
+    public bool CanAttack
+    {
+        get 
+        {
+            return cooldown <= 0;
+        }
+    }
+
     void Update()
     {
-        if(cooldown <= 0 && Input.GetKey(KeyCode.Space))
-        {
-            Attack();
-            cooldown = attackCooldown;
-        }
-        else if(cooldown > 0) 
+        if(cooldown > 0) 
         {
             cooldown -= Time.deltaTime;
         }
     }
 
-    void Attack()
+    public void Attack()
     {
-        BulletPool.Retrieve(bulletOrigin.position);
+        BulletPool.Retrieve(BulletType.Blue, bulletOrigin.position);
+        cooldown = attackCooldown;
     }
 }

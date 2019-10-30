@@ -11,21 +11,23 @@ public class EnemySpawner : MonoBehaviour
 
     [SerializeField]
     float verticalBuffer;
-    private CameraBound cameraBound;
+    CameraBound cameraBound;
+    float countdown;
     void Start()
     {
         cameraBound = GameObject.FindObjectOfType<CameraBound>();
-        StartCoroutine(SpawnRoutine());
     }
 
-    IEnumerator SpawnRoutine()
+    void Update()
     {
-        while(true) 
+        countdown -= Time.deltaTime;
+        if(countdown < 0)
         {
+            countdown = spawnRate;
             var verticalPosition = Random.Range(cameraBound.MinY+verticalBuffer, cameraBound.MaxY-verticalBuffer);
             var enemy = EnemyPool.Retrieve();
             enemy.transform.position = new Vector3(cameraBound.MaxX, verticalPosition, 0);
-            yield return new WaitForSeconds(spawnRate);
+            enemy.Initialize();
         }
     }
 }

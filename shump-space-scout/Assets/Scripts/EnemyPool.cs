@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class EnemyPool : ObjectPool
+public class EnemyPool
 {
     private static EnemyPool singleton;
     private static EnemyPool Instance
@@ -9,26 +9,29 @@ public class EnemyPool : ObjectPool
         {
             if(singleton == null)
             {
-                var prefab = Resources.Load<GameObject>("Enemy");
                 singleton = new EnemyPool();
-                singleton.Initialize(10, prefab);
+                singleton.Initialize();
             }
 
             return singleton;
         }
     }
 
-    public static GameObject Retrieve()
+    private ObjectPool pool;
+
+    public void Initialize()
     {
-        return Instance.RetrieveFromPool();
+        var prefab = Resources.Load<GameObject>("Enemy");
+        pool = new ObjectPool(10, prefab);
     }
-    public static void Return(GameObject bullet)
+
+    public static EnemyController Retrieve()
     {
-        Instance.ReturnToPool(bullet);
+        var obj = Instance.pool.RetrieveFromPool();
+        return obj.GetComponent<EnemyController>();
     }
-    protected override GameObject InstantiatePooledObject()
+    public static void Return(EnemyController obj)
     {
-        var origin = new Vector3(10000, 10000, 10000);
-        return GameObject.Instantiate(poolPrefab, origin, Quaternion.identity);
+        Instance.pool.ReturnToPool(obj.gameObject);
     }
 }

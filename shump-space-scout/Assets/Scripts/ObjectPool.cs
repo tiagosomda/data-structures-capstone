@@ -7,7 +7,7 @@ public class ObjectPool
     private List<GameObject> pool;
     protected GameObject poolPrefab;
 
-    protected void Initialize(int initialCapacity, GameObject prefab)
+    public ObjectPool(int initialCapacity, GameObject prefab)
     {
         poolPrefab = prefab;
 
@@ -36,7 +36,6 @@ public class ObjectPool
         else
         {
             // pool empty, so expand pool and return new object
-            Debug.Log("Pool Increased");
             pool.Capacity++;
             return InstantiatePooledObject();
         }

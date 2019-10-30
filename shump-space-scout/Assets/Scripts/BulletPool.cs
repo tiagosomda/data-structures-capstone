@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BulletPool : ObjectPool
+public enum BulletType { Blue, Yellow }
+public class BulletPool
 {
     private static BulletPool singleton;
     private static BulletPool Instance
@@ -11,31 +12,38 @@ public class BulletPool : ObjectPool
         {
             if(singleton == null)
             {
-                var prefab = Resources.Load<GameObject>("Bullet");
                 singleton = new BulletPool();
-                singleton.Initialize(10, prefab);
+                singleton.InitializeBullets();
             }
 
             return singleton;
         }
     }
 
-    public static Bullet Retrieve(Vector3 position)
+    private Dictionary<BulletType, ObjectPool> pools;
+
+    private void InitializeBullets()
     {
-        var obj = Instance.RetrieveFromPool();
+        pools = new Dictionary<BulletType, ObjectPool>();
+
+        var blueBulletprefab = Resources.Load<GameObject>("Bullets/BlueBullet");
+        pools.Add(BulletType.Blue, new ObjectPool(10, blueBulletprefab));
+
+        var yellowBulletprefab = Resources.Load<GameObject>("Bullets/YellowBullet");
+        pools.Add(BulletType.Yellow, new ObjectPool(10, yellowBulletprefab));
+    }
+
+    public static Bullet Retrieve(BulletType type, Vector3 position)
+    {
+        var obj = Instance.pools[type].RetrieveFromPool();
+        obj.transform.position = position;
         var bullet = obj.GetComponent<Bullet>();
-        bullet.transform.position = position;
         bullet.Initiliaze();
         return bullet;
     }
     public static void Return(Bullet bullet)
     {
         bullet.Deactivate();
-        Instance.ReturnToPool(bullet.gameObject);
-    }
-    protected override GameObject InstantiatePooledObject()
-    {
-        var origin = new Vector3(10000, 10000, 10000);
-        return GameObject.Instantiate(poolPrefab, origin, Quaternion.identity);
+        Instance.pools[bullet.GetBulletType()].ReturnToPool(bullet.gameObject);
     }
 }
